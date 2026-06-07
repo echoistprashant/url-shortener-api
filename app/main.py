@@ -1,6 +1,7 @@
 print("welcome to url shortener")
 
-from fastapi import FastAPI
+from fastapi import FastAPI , status
+
 
 app = FastAPI()
 
@@ -20,8 +21,28 @@ def about():
 
     }
 
-@app.get("/health")
+@app.get("/health", status_code=status.HTTP_200_OK)
 def health():
+    return{
+        "status " : "Healthy"
+    }
+
+@app.get("/hello/{name}")
+def hello(name: str):
+    return{
+        "messsage" : f"hello {name}"
+    }
+
+@app.get("/square/{number}")
+def square(number: int):
+    result = number * number
+    return{
+        "number" : number,
+        "square" : result
+  }
+
+@app.get("/greet")
+def greet(name: str = "Guest"):
     return {
-        "status" : "Healthy"
+        "message": f"Hello, {name}!"
     }
