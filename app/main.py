@@ -1,9 +1,12 @@
 
 
 from fastapi import FastAPI , status
-from pydantic import BaseModel
+from fastapi.responses import RedirectResponse
+from pydantic import BaseModel, HttpUrl
 import random
 import string
+
+url_database = {}
 
 def generate_short_code():
     characters = string.ascii_letters + string.digits
@@ -14,7 +17,7 @@ class User(BaseModel):
     name : str
 
 class ShortenURLRequest(BaseModel):
-    url: str
+    url: HttpUrl
 
 app = FastAPI(
     title="URL Shortener API",
@@ -71,10 +74,20 @@ def create_user(user: User):
         "message": f"User '{user.name}' created successfully"
     }
 
-@app.post("/shorten-url", status_code=status.HTTP_201_CREATED)
+@app.post("/shorten", status_code=status.HTTP_201_CREATED)
 def shorten_url(request: ShortenURLRequest):
+    short_code = generate_short_code()
+    url_database[short_code] = request.url
     return {
          "original_url": request.url,
-         "short_url": f"http://localhost:8000/"+generate_short_code()
+         "short_url": f"http://localhost:8000/{short_code}"
     
     }
+
+@app.get("/{short_code}")
+def redirect_to_original_url(short_code: str):
+    original_url = url_database.get(short_code)
+    if original_url:
+        return RedirectResponse(url=original_url)
+    else:
+        return {"error": "Short URL not found"}
