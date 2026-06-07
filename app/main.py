@@ -18,6 +18,7 @@ class User(BaseModel):
 
 class ShortenURLRequest(BaseModel):
     url: HttpUrl
+    custom_alias: str | None=None
 
 app = FastAPI(
     title="URL Shortener API",
@@ -68,6 +69,7 @@ def greet(name: str = "Guest"):
     }
 
 
+    
 @app.post("/user", status_code=status.HTTP_201_CREATED)
 def create_user(user: User):
     return {
@@ -76,8 +78,20 @@ def create_user(user: User):
 
 @app.post("/shorten", status_code=status.HTTP_201_CREATED)
 def shorten_url(request: ShortenURLRequest):
-    short_code = generate_short_code()
+    if request.custom_alias:
+
+        if request.custom_alias in url_database:
+            return {
+                "error": "Custom alias already exists"
+            }
+
+        short_code = request.custom_alias
+
+    else:
+        short_code = generate_short_code()
+
     url_database[short_code] = request.url
+
     return {
          "original_url": request.url,
          "short_url": f"http://localhost:8000/{short_code}"
