@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI , status
 from fastapi.responses import RedirectResponse
+from fastapi import HTTPException
 from pydantic import BaseModel, HttpUrl
 import random
 import string
@@ -18,7 +19,9 @@ class User(BaseModel):
 
 class ShortenURLRequest(BaseModel):
     url: HttpUrl
-    custom_alias: str | None=None
+    custom_alias: str | None = None
+
+
 
 app = FastAPI(
     title="URL Shortener API",
@@ -81,9 +84,11 @@ def shorten_url(request: ShortenURLRequest):
     if request.custom_alias:
 
         if request.custom_alias in url_database:
-            return {
-                "error": "Custom alias already exists"
-            }
+            raise HTTPException(
+            status_code = status.HTTP_409_CONFLICT,
+            detail = "Custom alias already exists"
+)
+            
 
         short_code = request.custom_alias
 
@@ -104,4 +109,7 @@ def redirect_to_original_url(short_code: str):
     if original_url:
         return RedirectResponse(url=original_url)
     else:
-        return {"error": "Short URL not found"}
+        raise HTTPException(
+           status_code=status.HTTP_404_NOT_FOUND,
+           detail="Short URL not found"
+    )
