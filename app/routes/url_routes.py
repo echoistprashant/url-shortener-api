@@ -1,7 +1,8 @@
 from fastapi import APIRouter, status
 from fastapi.responses import RedirectResponse
 
-from app.models.schemas import ShortenURLRequest
+from app.models.schemas import ShortenURLRequest, ShortenURLResponse, URLStatsResponse
+    
 from app.services.shortener_service import get_original_url, shorten_url, get_url_stats
 
 from fastapi import Depends
@@ -13,14 +14,15 @@ from app.database.db import get_db
 router = APIRouter()
 
 
-@router.post("/shorten", status_code=status.HTTP_201_CREATED)
+@router.post("/shorten",response_model=ShortenURLResponse, status_code=status.HTTP_201_CREATED)
 def create_short_url(
     request: ShortenURLRequest,
     db: Session = Depends(get_db)
 ):
     return shorten_url(request, db)
 
-@router.get("/stats/{short_code}")
+@router.get("/stats/{short_code}", response_model=URLStatsResponse)
+
 def url_stats(
     short_code: str,
     db: Session = Depends(get_db)

@@ -87,14 +87,24 @@ def get_url_stats(
         URL.short_code == short_code
     ).first()
 
-    if url_entry:
-        return {
-            "original_url": url_entry.original_url,
-            "short_code": url_entry.short_code,
-            "clicks": url_entry.clicks
-        }
+    if not url_entry:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Short URL not found",
+        )
 
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Short URL not found",
-    )
+    is_expired = False
+
+    if (
+        url_entry.expires_at
+        and url_entry.expires_at < datetime.now()
+    ):
+        is_expired = True
+
+    return {
+        "original_url": url_entry.original_url,
+        "short_code": url_entry.short_code,
+        "clicks": url_entry.clicks,
+        "expires_at": url_entry.expires_at,
+        "is_expired": is_expired
+    }
