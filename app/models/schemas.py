@@ -8,4 +8,5 @@ class User(BaseModel):
 class ShortenURLRequest(BaseModel):
     url: HttpUrl
     custom_alias: str | None = None
+    expires_in_days: int | None = None
 
