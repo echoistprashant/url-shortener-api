@@ -16,3 +16,7 @@ class URL(Base):
         nullable=False,
         index=True
     )
+    clicks = Column(
+        Integer,
+        default=0,
+    )

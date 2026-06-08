@@ -50,7 +50,32 @@ def get_original_url(
     ).first()
 
     if url_entry:
+
+        url_entry.clicks += 1
+
+        db.commit()
+
         return url_entry.original_url
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="Short URL not found",
+    )
+
+def get_url_stats(
+    short_code: str,
+    db: Session
+):
+    url_entry = db.query(URL).filter(
+        URL.short_code == short_code
+    ).first()
+
+    if url_entry:
+        return {
+            "original_url": url_entry.original_url,
+            "short_code": url_entry.short_code,
+            "clicks": url_entry.clicks
+        }
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
