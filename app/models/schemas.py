@@ -23,3 +23,14 @@ class URLStatsResponse(BaseModel):
     clicks: int
     expires_at: datetime | None = None
     is_expired: bool
+
+class UserSignupRequest(BaseModel):
+     username: str 
+     email: str
+     password: str
+
+class UserResponse(BaseModel):
+    id: int 
+    username: str
+    email: str
+     
