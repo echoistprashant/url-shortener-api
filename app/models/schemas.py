@@ -43,5 +43,9 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
    
-
+class MyURLResponse(BaseModel):
+    original_url: str
+    short_code: str
+    clicks: int
+    expires_at: datetime | None = None
      

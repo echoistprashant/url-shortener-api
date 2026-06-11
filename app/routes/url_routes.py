@@ -1,9 +1,8 @@
 from fastapi import APIRouter, status
 from fastapi.responses import RedirectResponse
 
-from app.models.schemas import ShortenURLRequest, ShortenURLResponse, URLStatsResponse
-    
-from app.services.shortener_service import get_original_url, shorten_url, get_url_stats
+from app.models.schemas import ShortenURLRequest, ShortenURLResponse, URLStatsResponse, MyURLResponse   
+from app.services.shortener_service import get_original_url, shorten_url, get_url_stats, get_my_urls
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -36,6 +35,21 @@ def url_stats(
     db: Session = Depends(get_db)
 ):
     return get_url_stats(short_code, db)
+
+@router.get(
+    "/my-urls",
+    response_model=list[MyURLResponse]
+)
+def my_urls(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    )
+):
+    return get_my_urls(
+        current_user,
+        db
+    )
 
 
 @router.get("/{short_code}")

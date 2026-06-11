@@ -111,3 +111,14 @@ def get_url_stats(
         "expires_at": url_entry.expires_at,
         "is_expired": is_expired
     }
+
+
+def get_my_urls(
+    current_user: User,
+    db: Session
+):
+    urls = db.query(URL).filter(
+        URL.user_id == current_user.id
+    ).all()
+
+    return urls
