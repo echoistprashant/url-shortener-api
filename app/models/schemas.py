@@ -49,3 +49,7 @@ class MyURLResponse(BaseModel):
     clicks: int
     expires_at: datetime | None = None
      
+class MeResponse(BaseModel):
+    id: int
+    username: str
+    email: str

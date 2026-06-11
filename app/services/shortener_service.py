@@ -84,17 +84,19 @@ def get_original_url(
 
 def get_url_stats(
     short_code: str,
-    db: Session
+    db: Session,
+    current_user: User
+
 ):
     url_entry = db.query(URL).filter(
         URL.short_code == short_code
     ).first()
 
-    if not url_entry:
+    if url_entry.user_id != current_user.id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Short URL not found",
-        )
+           status_code=status.HTTP_403_FORBIDDEN,
+           detail="Not authorized"
+    )
 
     is_expired = False
 

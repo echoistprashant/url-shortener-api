@@ -13,6 +13,6 @@ app = FastAPI(
 )
 
 app.include_router(test_routes.router)
-app.include_router(url_routes.router)
 app.include_router(auth_routes.router)
+app.include_router(url_routes.router)
 Base.metadata.create_all(bind=engine)

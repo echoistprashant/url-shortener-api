@@ -28,14 +28,22 @@ def create_short_url(
 ):
     return shorten_url(request, db, current_user)
 
-@router.get("/stats/{short_code}", response_model=URLStatsResponse)
-
+@router.get(
+    "/stats/{short_code}",
+    response_model=URLStatsResponse
+)
 def url_stats(
     short_code: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    )
 ):
-    return get_url_stats(short_code, db)
-
+    return get_url_stats(
+        short_code,
+        db,
+        current_user
+    )
 @router.get(
     "/my-urls",
     response_model=list[MyURLResponse]
