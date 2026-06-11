@@ -2,14 +2,15 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.models.schemas import ShortenURLRequest
-from app.models.url_model import URL
+from app.models.url_model import URL, User
 from app.utils.generator import generate_short_code
 from datetime import datetime, timedelta
 
 
 def shorten_url(
     request: ShortenURLRequest,
-    db: Session
+    db: Session,
+    current_user: User
 ):
     if request.custom_alias:
 
@@ -39,15 +40,17 @@ def shorten_url(
     new_url = URL(
         original_url=str(request.url),
         short_code=short_code,
-        expires_at=expires_at
+        expires_at=expires_at,
+        user_id=current_user.id
     )
 
     db.add(new_url)
     db.commit()
 
     return {
-        "original_url": request.url,
+        "original_url": str(request.url),
         "short_url": f"http://localhost:8000/{short_code}",
+        
     }
 
 

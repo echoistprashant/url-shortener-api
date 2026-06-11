@@ -1,11 +1,19 @@
+from jose import JWTError, jwt
+from fastapi import Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
+from app.database.db import get_db
+from app.models.url_model import User
+from datetime import datetime, timedelta
+from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
-from jose import jwt
-from datetime import datetime, timedelta
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/login"
+)
 
 def hash_password(password: str):
      return pwd_context.hash(password) 
@@ -42,3 +50,36 @@ def create_access_token(
     )
 
     return encoded_jwt
+
+def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid token"
+    )
+
+    try:
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+
+        user_id = payload.get("user_id")
+
+        if user_id is None:
+            raise credentials_exception
+
+    except JWTError:
+        raise credentials_exception
+
+    user = db.query(User).filter(
+        User.id == user_id
+    ).first()
+
+    if user is None:
+        raise credentials_exception
+
+    return user

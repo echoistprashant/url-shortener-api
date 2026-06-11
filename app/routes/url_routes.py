@@ -9,6 +9,12 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.database.db import get_db
+from app.utils.security import (
+    get_current_user
+)
+from app.models.url_model import (
+    User
+)
 
 
 router = APIRouter()
@@ -17,9 +23,11 @@ router = APIRouter()
 @router.post("/shorten",response_model=ShortenURLResponse, status_code=status.HTTP_201_CREATED)
 def create_short_url(
     request: ShortenURLRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user)
 ):
-    return shorten_url(request, db)
+    return shorten_url(request, db, current_user)
 
 @router.get("/stats/{short_code}", response_model=URLStatsResponse)
 
