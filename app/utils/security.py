@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -8,6 +11,8 @@ from datetime import datetime, timedelta
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
+
+load_dotenv()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -23,12 +28,19 @@ def verify_password(plain_password: str, hashed_password: str):
      return pwd_context.verify(plain_password, hashed_password)
 
 
-SECRET_KEY = "mysecretkey2817"
+SECRET_KEY = os.getenv(
+    "SECRET_KEY"
+)
 
-ALGORITHM = "HS256"
+ALGORITHM = os.getenv(
+    "ALGORITHM"
+)
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv(
+        "ACCESS_TOKEN_EXPIRE_MINUTES"
+    )
+)
 
 def create_access_token(
     data: dict
