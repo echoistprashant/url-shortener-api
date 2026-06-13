@@ -51,6 +51,8 @@ def url_stats(
 def my_urls(
     page: int = 1,
     limit: int = 5,
+    search: str | None = None,
+    sort: str = "desc",
     db: Session = Depends(get_db),
     current_user: User = Depends(
         get_current_user
@@ -60,7 +62,9 @@ def my_urls(
     current_user,
     db,
     page,
-    limit
+    limit,
+    search,
+    sort
 )
 
 

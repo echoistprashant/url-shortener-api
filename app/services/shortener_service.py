@@ -119,12 +119,36 @@ def get_my_urls(
     current_user: User,
     db: Session,
     page: int,
-    limit: int
+    limit: int,
+    search: str | None,
+    sort: str
 ):
     skip = (page - 1) * limit
 
-    urls = db.query(URL).filter(
+    query = db.query(URL).filter(
         URL.user_id == current_user.id
-    ).offset(skip).limit(limit).all()
+    )
+
+    if search:
+        query = query.filter(
+            URL.original_url.ilike(
+                f"%{search}%"
+            )
+        )
+
+    if sort == "asc":
+        query = query.order_by(
+        URL.id.asc()
+    )
+    else:
+        query = query.order_by(
+        URL.id.desc()
+    )    
+
+    urls = query.offset(
+        skip
+    ).limit(
+        limit
+    ).all()
 
     return urls
