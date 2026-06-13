@@ -117,10 +117,14 @@ def get_url_stats(
 
 def get_my_urls(
     current_user: User,
-    db: Session
+    db: Session,
+    page: int,
+    limit: int
 ):
+    skip = (page - 1) * limit
+
     urls = db.query(URL).filter(
         URL.user_id == current_user.id
-    ).all()
+    ).offset(skip).limit(limit).all()
 
     return urls
