@@ -13,7 +13,6 @@ def shorten_url(
     current_user: User
 ):
     if request.custom_alias:
-
         existing_alias = db.query(URL).filter(
             URL.short_code == request.custom_alias
         ).first()
@@ -25,18 +24,16 @@ def shorten_url(
             )
 
         short_code = request.custom_alias
-
     else:
         short_code = generate_short_code()
-    
+
     expires_at = None
 
     if request.expires_in_days:
-         expires_at = datetime.now() + timedelta(
+        expires_at = datetime.now() + timedelta(
             days=request.expires_in_days
+        )
 
-         )
-    
     new_url = URL(
         original_url=str(request.url),
         short_code=short_code,
@@ -50,7 +47,6 @@ def shorten_url(
     return {
         "original_url": str(request.url),
         "short_url": f"http://localhost:8000/{short_code}",
-        
     }
 
 
@@ -86,7 +82,6 @@ def get_url_stats(
     short_code: str,
     db: Session,
     current_user: User
-
 ):
     url_entry = db.query(URL).filter(
         URL.short_code == short_code
@@ -94,9 +89,9 @@ def get_url_stats(
 
     if url_entry.user_id != current_user.id:
         raise HTTPException(
-           status_code=status.HTTP_403_FORBIDDEN,
-           detail="Not authorized"
-    )
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized",
+        )
 
     is_expired = False
 
@@ -138,12 +133,14 @@ def get_my_urls(
 
     if sort == "asc":
         query = query.order_by(
-        URL.id.asc()
-    )
+            URL.id.asc()
+        )
     else:
         query = query.order_by(
-        URL.id.desc()
-    )    
+            URL.id.desc()
+        )
+
+    total = query.count()
 
     urls = query.offset(
         skip
@@ -151,4 +148,14 @@ def get_my_urls(
         limit
     ).all()
 
-    return urls
+    has_next = (
+        skip + limit
+    ) < total
+
+    return {
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "has_next": has_next,
+        "urls": urls
+    }

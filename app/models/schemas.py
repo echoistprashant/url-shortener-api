@@ -53,3 +53,10 @@ class MeResponse(BaseModel):
     id: int
     username: str
     email: str
+
+class MyURLsPaginatedResponse(BaseModel):
+    page: int
+    limit: int
+    total: int
+    has_next: bool
+    urls: list[MyURLResponse]    
